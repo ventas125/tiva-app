@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TIVA</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TIVA">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b2a6b">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;min-height:100%;background:#eef2f8;color:#14213d;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:linear-gradient(180deg,#1747a6,#0b2a6b);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 16px 22px;text-align:center;border-radius:0 0 26px 26px;box-shadow:0 6px 18px rgba(11,42,107,.25)}
+  header .logo{display:inline-block;background:#fff;border-radius:14px;padding:6px 14px}
+  header .logo img{height:40px;display:block}
+  header h1{margin:12px 0 2px;font-size:22px;letter-spacing:.5px}
+  header p{margin:0;font-size:14px;opacity:.85}
+  header button{margin-top:10px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:5px 12px;font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 10px;padding:22px 14px 30px;max-width:560px;margin:0 auto}
+  @media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
+  a.app{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:#14213d}
+  a.app .ic{width:74px;height:74px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:38px;box-shadow:0 4px 10px rgba(0,0,0,.18)}
+  a.app:active .ic{transform:scale(.92)}
+  a.app span{margin-top:7px;font-size:13px;font-weight:700;text-align:center;line-height:1.15}
+  .sucs{max-width:520px;margin:0 auto;padding:18px 14px}
+  .sucs button{display:block;width:100%;text-align:left;background:#fff;border:0;border-radius:14px;padding:16px;margin:0 0 10px;font-size:17px;font-weight:800;color:#0b2a6b;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+  .tip{max-width:520px;margin:0 auto;padding:0 18px 28px;font-size:12px;color:#667;text-align:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* TIVA Sucursales — accesos a las herramientas de cada local (18/10/2026, pedido de Daniel).
+   Para sumar un botón: agregarlo en APPS. Para sumar una sucursal: en SUCS. */
+var CHAT = 'https://script.google.com/macros/s/AKfycbxrj6Yc4gvX3lBWh7uT0jy4tqE8wGdCNw_tTn82oVaMA-PmnKTnWh1WQbMTaAp0FjqZ/exec?email=';
+var SUCS = {
+  'RECOVA': 'tiva.recova@gmail.com',
+  'BERAJA': 'sandobalberaja@gmail.com',
+  'CONSTITUCION': 'consti.ab07@gmail.com',
+  'SOFIA CELL CONSTITUCION': 'sofiativa15@gmail.com',
+  'RETIRO SAN MARTIN': 'retirosanmartin454@gmail.com',
+  'RETIRO RAMOS MEJIA': 'retiro.40ramos@gmail.com',
+  'RIVADAVIA CENTER': 'centerrivadavia406@gmail.com',
+  'RIVADAVIA 2525 CENTRAL': 'tivariva25@gmail.com'
+};
+function as(id, n, v){ return 'https://www.appsheet.com/start/' + id + '#appName=' + encodeURIComponent(n) + '&view=' + encodeURIComponent(v); }
+var ENV = ['19837385-4f51-4fbf-9fda-9a7c8eb14eba', 'TIVAREMITO--3-57683989'];
+var TRF = ['65e98873-94f5-4f1d-ad00-b6a5b04a803f', 'TIVA—CHECKLISTDIARIO-57683989'];
+var FUN = ['2740cbb9-73cc-4984-bc01-2b15ba4cb81a', 'TIVAFUNDASV2-57683989'];
+var APPS = [
+  { t: 'Recibir mercadería', e: '📦', c: '#2e7d32', u: function(){ return as(ENV[0], ENV[1], 'RECIBIR CON CELULAR'); } },
+  { t: 'Pedir al depósito',  e: '🛒', c: '#ef6c00', u: function(){ return as(ENV[0], ENV[1], 'PEDIR CELULAR'); } },
+  { t: 'Fundas',             e: '🎨', c: '#8e24aa', u: function(){ return as(FUN[0], FUN[1], 'PEDIDOS'); } },
+  { t: 'DUX',                e: '🔵', c: '#0b5cd5', u: function(){ return 'https://erp.duxsoftware.com.ar'; } },
+  { t: 'Chat TIVA',          e: '💬', c: '#0a7c6c', u: function(s){ return CHAT + encodeURIComponent(SUCS[s]); } },
+  { t: 'Nueva transferencia',e: '📷', c: '#1565c0', u: function(){ return as(TRF[0], TRF[1], 'NUEVO COMPROBANTE'); } },
+  { t: 'Mi turno',           e: '⏰', c: '#00838f', u: function(){ return as(TRF[0], TRF[1], 'MI TURNO'); } },
+  { t: 'Mis comprobantes',   e: '🧾', c: '#5c6bc0', u: function(){ return as(TRF[0], TRF[1], 'HISTORIAL COMPROBANTES'); } }
+];
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function guardada(){ try { return localStorage.getItem('tiva_suc') || ''; } catch(e){ return ''; } }
+function guardar(s){ try { if (s) localStorage.setItem('tiva_suc', s); else localStorage.removeItem('tiva_suc'); } catch(e){} }
+var LOGO = '<div class="logo"><img id="lg" src="https://tiva.com.ar/cdn/shop/files/LOGUITO_1b2a8d14-a883-4cc9-a7e7-9f3348145478.png" alt="TIVA"></div>';
+function logoFix(){ var i = document.getElementById('lg'); if (!i) return; var f = function(){ i.parentNode.innerHTML = '<b style="color:#0b2a6b;font-size:26px;letter-spacing:2px">TIVA</b>'; }; i.onerror = f; if (i.complete && !i.naturalWidth) f(); }
+function pintar(){
+  var q = new URLSearchParams(location.search).get('suc');
+  var s = (q || guardada()).toUpperCase();
+  var el = document.getElementById('app');
+  if (!SUCS[s]) {
+    var h = '<header>' + LOGO + '<h1>Elegí tu sucursal</h1><p>Se elige una sola vez</p></header><div class="sucs">';
+    Object.keys(SUCS).forEach(function(k){ h += '<button type="button" data-s="' + esc(k) + '">🏪 ' + esc(k) + '</button>'; });
+    el.innerHTML = h + '</div>'; logoFix();
+    el.querySelectorAll('[data-s]').forEach(function(b){ b.onclick = function(){ guardar(b.getAttribute('data-s')); history.replaceState(null, '', '?suc=' + encodeURIComponent(b.getAttribute('data-s'))); pintar(); }; });
+    return;
+  }
+  guardar(s);
+  var g = '<header>' + LOGO + '<h1>' + esc(s) + '</h1><p>Tocá lo que necesitás</p><button type="button" id="cambiar">Cambiar sucursal</button></header><div class="grid">';
+  APPS.forEach(function(a){ g += '<a class="app" href="' + esc(a.u(s)) + '" target="_blank" rel="noopener"><div class="ic" style="background:' + a.c + '">' + a.e + '</div><span>' + esc(a.t) + '</span></a>'; });
+  g += '</div><div class="tip">Para instalarla: iPhone → Safari → Compartir → "Agregar a inicio". Android → Chrome → ⋮ → "Instalar app" o "Agregar a pantalla principal".</div>';
+  el.innerHTML = g; logoFix();
+  document.getElementById('cambiar').onclick = function(){ if (confirm('¿Cambiar de sucursal?')) { guardar(''); history.replaceState(null, '', location.pathname); pintar(); } };
+}
+pintar();
+</script>
+</body>
+</html>
