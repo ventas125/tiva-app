@@ -53,7 +53,7 @@ var SUCS = {
   'RIVADAVIA 2525 CENTRAL': 'tivariva25@gmail.com'
 };
 function as(id, n, v){ return 'https://www.appsheet.com/start/' + id + '#appName=' + encodeURIComponent(n) + '&view=' + encodeURIComponent(v); }
-function chat(s, canal){ return CHAT + encodeURIComponent(SUCS[s]) + (canal ? '#canal=' + canal : ''); }
+function chat(s, canal){ return CHAT + encodeURIComponent(SUCS[s]) + (canal ? '&canal=' + canal : ''); }
 var ENV = ['19837385-4f51-4fbf-9fda-9a7c8eb14eba', 'TIVAREMITO--3-57683989'];
 var TRF = ['65e98873-94f5-4f1d-ad00-b6a5b04a803f', 'TIVA—CHECKLISTDIARIO-57683989'];
 var FUN = ['2740cbb9-73cc-4984-bc01-2b15ba4cb81a', 'TIVAFUNDASV2-57683989'];
@@ -65,8 +65,7 @@ var BOTONES = [
   { t: 'Fundas personalizadas', e: '🎨', s: 'Informemos al depósito que recibimos funda personalizada para hacer. Ofrezcamos personalizar cuando no encuentre su diseño el cliente', c: '#9d4edd', u: function(){ return as(FUN[0], FUN[1], 'PEDIDOS'); } },
   { t: 'Stock de la sucursal', e: '📊', s: 'Consultalo a la IA para que te diga cuántas unidades te quedan en stock de cualquier producto del local, y ahí mismo seleccioná para hacer tu pedido', c: '#2a9d8f', u: function(s){ return chat(s, 'BOT'); } },
   { t: 'Tablero del chat', e: '💬', s: 'Acá encontrarás todos los chats que necesitás para trabajar mejor', c: '#0f6e5f', u: function(s){ return chat(s, ''); } },
-  { t: 'Compatibles Glass 9D', e: '🔎', s: 'Consultalo a la IA porque cualquier modelo compatible Glass 9D o protector de cámara u otro', c: '#1d6fd6', u: function(s){ return chat(s, 'COMP9D'); } },
-  { t: 'Abrir DUX Software', e: '🧾', s: 'Para facturar y mirar el stock del local', c: '#0b5cd5', u: function(){ return 'https://erp.duxsoftware.com.ar'; } }
+  { t: 'Compatibles Glass 9D', e: '🔎', s: 'Consultalo a la IA porque cualquier modelo compatible Glass 9D o protector de cámara u otro', c: '#1d6fd6', u: function(s){ return chat(s, 'COMP9D'); } }
 ];
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 function guardada(){ try { return localStorage.getItem('tiva_suc') || ''; } catch(e){ return ''; } }
