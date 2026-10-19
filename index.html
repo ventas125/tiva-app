@@ -34,6 +34,23 @@
   .sucs{max-width:520px;margin:0 auto;padding:18px 14px}
   .sucs button{display:block;width:100%;text-align:left;background:#fff;border:1px solid #e6ebe9;border-radius:16px;padding:16px;margin:0 0 10px;font-size:17px;font-weight:800;color:#0f6e5f;box-shadow:0 2px 8px rgba(0,0,0,.06)}
   .tip{max-width:640px;margin:0 auto;padding:6px 18px 30px;font-size:12px;color:#8a9793;text-align:center}
+  /* 18/10 (Daniel): cartel para instalar la app y activar los avisos con sonido */
+  .panel{max-width:640px;margin:14px auto 0;padding:0 14px;display:grid;gap:10px}
+  @media(min-width:820px){.panel{max-width:960px;grid-template-columns:1fr 1fr}}
+  .pc{display:flex;align-items:center;gap:12px;background:#fff7e0;border:1px solid #f1dfa6;border-radius:16px;padding:12px 14px}
+  .pc.ok{background:#e8f7ee;border-color:#b9e3c8}
+  .pc .pi{font-size:26px;flex:0 0 auto}
+  .pc .pt{flex:1;min-width:0}
+  .pc b{display:block;font-size:14.5px;color:#2b2b2b;line-height:1.25}
+  .pc small{display:block;margin-top:2px;font-size:12px;color:#6b6b6b;line-height:1.3}
+  .pc button{flex:0 0 auto;background:#0f6e5f;color:#fff;border:0;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:800;white-space:nowrap}
+  .pc.ok button{background:#fff;color:#1b7f5f;border:1px solid #b9e3c8}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+  .modal .bx{background:#fff;border-radius:22px 22px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom));width:100%;max-width:520px}
+  .modal h2{margin:0 0 10px;font-size:18px}
+  .modal ol{margin:0;padding-left:20px;font-size:15px;line-height:1.6}
+  .modal button{margin-top:16px;width:100%;background:#0f6e5f;color:#fff;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:800}
+  .aviso{position:fixed;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top));background:#15302a;color:#fff;border-radius:16px;padding:14px 16px;font-size:16px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:10;display:none;text-align:center}
 </style>
 </head>
 <body>
@@ -84,11 +101,98 @@ function pintar(){
     return;
   }
   guardar(s);
-  var g = '<header><div class="hrow">' + LOGO + '<div><h1>' + esc(s) + '</h1><p>Tocá lo que necesitás</p></div><button type="button" id="cambiar">Cambiar sucursal</button></div></header><div class="lista">';
+  var g = '<header><div class="hrow">' + LOGO + '<div><h1>' + esc(s) + '</h1><p>Tocá lo que necesitás</p></div><button type="button" id="cambiar">Cambiar sucursal</button></div></header>';
+  g += '<div class="panel" id="panel"></div><div class="lista">';
   BOTONES.forEach(function(b){ g += '<a class="card" href="' + esc(b.u(s)) + '" target="_blank" rel="noopener"><div class="ic" style="background:' + b.c + '">' + b.e + '</div><div class="tx"><b>' + esc(b.t) + '</b><small>' + esc(b.s) + '</small></div><div class="ch">›</div></a>'; });
-  g += '</div><div class="tip">Para instalarla: iPhone → Safari → Compartir → "Agregar a inicio". Android → Chrome → ⋮ → "Instalar app" o "Agregar a pantalla principal".</div>';
-  el.innerHTML = g; logoFix();
+  g += '</div><div class="tip">App TIVA · ' + esc(s) + '</div><div class="aviso" id="aviso"></div>';
+  el.innerHTML = g; logoFix(); pintarPanel();
   document.getElementById('cambiar').onclick = function(){ if (confirm('¿Cambiar de sucursal?')) { guardar(''); history.replaceState(null, '', location.pathname); pintar(); } };
+  avisosArrancar();
+}
+
+/* ===== 18/10 (Daniel): INSTALAR LA APP + AVISOS CON SONIDO =====
+   - Instalar: en Android sale el cartel de Chrome; en iPhone se muestran los pasos (Apple no deja instalar con un botón).
+   - Avisos: la app le pregunta al chat cada 15 segundos si llegó un mensaje para este local. Si llegó, suena (mismo
+     sonido que el Chat Administración), vibra y muestra un aviso. Funciona mientras la app esté abierta en el celular. */
+var INSTALL_EV = null;
+window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); INSTALL_EV = e; pintarPanel(); });
+window.addEventListener('appinstalled', function(){ INSTALL_EV = null; try { localStorage.setItem('tiva_inst', '1'); } catch(e){} pintarPanel(); });
+function instalada(){ try { if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) return true; return localStorage.getItem('tiva_inst') === '1'; } catch(e){ return false; } }
+function esIphone(){ return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
+function notifOn(){ try { return localStorage.getItem('tiva_notif') === '1'; } catch(e){ return false; } }
+function pintarPanel(){
+  var p = document.getElementById('panel'); if (!p) return;
+  var h = '';
+  if (!instalada()) {
+    h += '<div class="pc"><div class="pi">📲</div><div class="pt"><b>Instalá la App TIVA en este celular</b><small>Queda como una app más, con el ícono de TIVA, y abre más rápido.</small></div><button type="button" id="bInst">Instalar</button></div>';
+  }
+  if (notifOn() && (!('Notification' in window) || Notification.permission === 'granted')) {
+    h += '<div class="pc ok"><div class="pi">🔔</div><div class="pt"><b>Avisos con sonido activados</b><small>Cuando te escriban, esta app suena y vibra (mientras esté abierta).</small></div><button type="button" id="bProbar">Probar</button></div>';
+  } else {
+    h += '<div class="pc"><div class="pi">🔔</div><div class="pt"><b>Activá los avisos con sonido</b><small>Para que suene cuando te llegue un mensaje del chat.</small></div><button type="button" id="bNotif">Activar</button></div>';
+  }
+  p.innerHTML = h;
+  var bi = document.getElementById('bInst'); if (bi) bi.onclick = instalar;
+  var bn = document.getElementById('bNotif'); if (bn) bn.onclick = activarAvisos;
+  var bp = document.getElementById('bProbar'); if (bp) bp.onclick = function(){ desbloquear(); ding(); mostrarAviso('🔔 Así va a sonar cuando te escriban'); };
+}
+function instalar(){
+  if (INSTALL_EV) { INSTALL_EV.prompt(); INSTALL_EV.userChoice.then(function(){ INSTALL_EV = null; pintarPanel(); }); return; }
+  var pasos = esIphone()
+    ? '<li>Abrí esta página en <b>Safari</b> (si estás en otro navegador, copiá el link y pegalo en Safari).</li><li>Tocá el botón <b>Compartir</b> (el cuadrado con la flecha para arriba, abajo en el medio).</li><li>Deslizá y tocá <b>"Agregar a inicio"</b>.</li><li>Tocá <b>Agregar</b>. Listo: te queda el ícono de TIVA en la pantalla.</li>'
+    : '<li>Tocá los <b>tres puntitos ⋮</b> arriba a la derecha de Chrome.</li><li>Tocá <b>"Instalar app"</b> o <b>"Agregar a pantalla principal"</b>.</li><li>Confirmá. Listo: te queda el ícono de TIVA en la pantalla.</li>';
+  var m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = '<div class="bx"><h2>📲 Cómo instalar la App TIVA</h2><ol>' + pasos + '</ol><button type="button">Entendido</button></div>';
+  m.querySelector('button').onclick = function(){ m.remove(); try { localStorage.setItem('tiva_inst', '1'); } catch(e){} pintarPanel(); };
+  document.body.appendChild(m);
+}
+/* sonido: el mismo "ding" del Chat Administración (tres notas, dos veces) + vibración */
+var AC = null;
+function desbloquear(){ try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch(e){} }
+document.addEventListener('click', desbloquear, true); document.addEventListener('touchstart', desbloquear, true);
+function ding(){
+  try { if (navigator.vibrate) navigator.vibrate([250, 120, 250]); } catch(e){}
+  try {
+    desbloquear(); if (!AC) return;
+    var t0 = AC.currentTime + 0.02;
+    [[0,1046],[0.16,1318],[0.32,1568],[0.75,1046],[0.91,1318],[1.07,1568]].forEach(function(p){
+      var o = AC.createOscillator(), g = AC.createGain(); o.type = 'sine'; o.frequency.value = p[1]; o.connect(g); g.connect(AC.destination);
+      g.gain.setValueAtTime(0.0001, t0 + p[0]); g.gain.exponentialRampToValueAtTime(0.9, t0 + p[0] + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + p[0] + 0.3);
+      o.start(t0 + p[0]); o.stop(t0 + p[0] + 0.32);
+    });
+  } catch(e){}
+}
+function mostrarAviso(t){ var a = document.getElementById('aviso'); if (!a) return; a.textContent = t; a.style.display = 'block'; clearTimeout(a._t); a._t = setTimeout(function(){ a.style.display = 'none'; }, 6000); }
+function activarAvisos(){
+  desbloquear();
+  var fin = function(){ try { localStorage.setItem('tiva_notif', '1'); } catch(e){} ding(); mostrarAviso('🔔 Avisos activados. Así va a sonar cuando te escriban.'); pintarPanel(); avisosArrancar(); };
+  if ('Notification' in window && Notification.permission !== 'granted') {
+    Notification.requestPermission().then(function(p){ if (p !== 'granted') mostrarAviso('Sin permiso del celular igual va a sonar mientras la app esté abierta.'); fin(); }).catch(fin);
+  } else fin();
+}
+var SELLO_AV = null, SELLO_PEND = false, ULT_SON = 0, AV_TIMER = null;
+function avisosArrancar(){
+  if (AV_TIMER || !notifOn()) return;
+  var s = guardada(); if (!SUCS[s]) return;
+  var url = CHAT.replace('?email=', '?api=sello&email=') + encodeURIComponent(SUCS[s]) + '&suc=' + encodeURIComponent(s);
+  var tick = function(){
+    fetch(url + '&_=' + Date.now(), { cache: 'no-store' }).then(function(r){ return r.text(); }).then(function(v){
+      var p = String(v || '0|0|0').split('|'), a = p[1] || '0', pend = p[2] === '1';
+      if (SELLO_AV === null) { SELLO_AV = a; SELLO_PEND = pend; return; }
+      if (a !== SELLO_AV) { SELLO_AV = a; ULT_SON = Date.now(); ding(); mostrarAviso('📩 Te llegó un mensaje nuevo en el chat'); notificar(); }
+      else if (pend && Date.now() - ULT_SON > 30000) { ULT_SON = Date.now(); ding(); mostrarAviso('📩 Tenés un mensaje sin leer en el chat'); }
+      SELLO_PEND = pend;
+    }).catch(function(){});
+  };
+  tick(); AV_TIMER = setInterval(tick, 15000);
+}
+function notificar(){
+  try {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    var s = guardada();
+    var n = new Notification('TIVA · ' + s, { body: 'Te llegó un mensaje nuevo en el chat. Tocá para abrirlo.', icon: 'icon-192.png', tag: 'tiva-chat', renotify: true });
+    n.onclick = function(){ window.open(chat(s, ''), '_blank'); n.close(); };
+  } catch(e){}
 }
 pintar();
 </script>
