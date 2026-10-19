@@ -55,6 +55,8 @@
 </head>
 <body>
 <div id="app"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 <script>
 /* TIVA Sucursales — todos los links de cada local en un solo lugar (18/10/2026, pedido de Daniel).
    Los textos de cada botón son los que escribió Daniel. Para sumar un botón: agregarlo en BOTONES. Para sumar una sucursal: en SUCS. */
@@ -108,6 +110,8 @@ function pintar(){
   el.innerHTML = g; logoFix(); pintarPanel();
   document.getElementById('cambiar').onclick = function(){ if (confirm('¿Cambiar de sucursal?')) { guardar(''); history.replaceState(null, '', location.pathname); pintar(); } };
   avisosArrancar();
+  if (pushOn() && Notification.permission === 'granted') setTimeout(function(){ pushRegistrar(function(){ pintarPanel(); }); }, 1500);   // refresca el registro del celular
+  if (new URLSearchParams(location.search).get('abrir') === 'chat') { history.replaceState(null, '', '?suc=' + encodeURIComponent(s)); location.href = chat(s, ''); }   // tocaron el aviso: directo al chat
 }
 
 /* ===== 18/10 (Daniel): INSTALAR LA APP + AVISOS CON SONIDO =====
@@ -127,14 +131,50 @@ function pintarPanel(){
     h += '<div class="pc"><div class="pi">📲</div><div class="pt"><b>Instalá la App TIVA en este celular</b><small>Queda como una app más, con el ícono de TIVA, y abre más rápido.</small></div><button type="button" id="bInst">Instalar</button></div>';
   }
   if (notifOn() && (!('Notification' in window) || Notification.permission === 'granted')) {
-    h += '<div class="pc ok"><div class="pi">🔔</div><div class="pt"><b>Avisos con sonido activados</b><small>Cuando te escriban, esta app suena y vibra (mientras esté abierta).</small></div><button type="button" id="bProbar">Probar</button></div>';
+    var conPush = pushOn();
+    h += '<div class="pc ok"><div class="pi">🔔</div><div class="pt"><b>Avisos con sonido activados</b><small>' + (conPush ? 'Cuando te escriban, el celular suena y avisa aunque la app esté cerrada.' : 'Cuando te escriban, esta app suena y vibra (mientras esté abierta).') + '</small></div><button type="button" id="bProbar">Probar</button></div>';
   } else {
     h += '<div class="pc"><div class="pi">🔔</div><div class="pt"><b>Activá los avisos con sonido</b><small>Para que suene cuando te llegue un mensaje del chat.</small></div><button type="button" id="bNotif">Activar</button></div>';
   }
   p.innerHTML = h;
   var bi = document.getElementById('bInst'); if (bi) bi.onclick = instalar;
   var bn = document.getElementById('bNotif'); if (bn) bn.onclick = activarAvisos;
-  var bp = document.getElementById('bProbar'); if (bp) bp.onclick = function(){ desbloquear(); ding(); mostrarAviso('🔔 Así va a sonar cuando te escriban'); };
+  var bp = document.getElementById('bProbar'); if (bp) bp.onclick = probarAviso;
+}
+/* ===== Avisos aunque la app esté cerrada (Firebase) ===== */
+var FIREBASE_CONFIG = { apiKey: 'AIzaSyAZNS6RnleazSGHr3-cj9pDd5vgWbo4jFY', authDomain: 'tiva-chat-notificaciones.firebaseapp.com', projectId: 'tiva-chat-notificaciones', storageBucket: 'tiva-chat-notificaciones.firebasestorage.app', messagingSenderId: '37768361854', appId: '1:37768361854:web:48e498b0987853f274252f' };
+var FCM_VAPID_KEY = 'BJGWXmahmXOza7Nk2NDpYxUose5ORS3RzDbGt0kMtWbNa5SkWiQPTIpexHX5jfffZnrs80y7_7DuxY8v5W7PKjo';
+function pushOn(){ try { return localStorage.getItem('tiva_push') === '1'; } catch(e){ return false; } }
+function pushPosible(){ return ('Notification' in window) && ('serviceWorker' in navigator) && window.firebase && firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported(); }
+function api(q){ return fetch(CHAT.replace('?email=', '?') + q + '&_=' + Date.now(), { cache: 'no-store' }).then(function(r){ return r.json(); }); }
+/* Registra este celular en Firebase y le manda el "token" al chat (hoja PUSH_TOKENS). Se repite en cada apertura para refrescarlo. */
+function pushRegistrar(cb){
+  var s = guardada(); if (!SUCS[s] || !pushPosible()) { if (cb) cb(false); return; }
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    var msg = firebase.messaging();
+    navigator.serviceWorker.register('firebase-messaging-sw.js').then(function(reg){
+      return msg.getToken({ vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
+    }).then(function(token){
+      if (!token) { if (cb) cb(false); return; }
+      var disp = (navigator.userAgent.match(/Android|iPhone|iPad|Windows|Mac/) || ['otro'])[0];
+      return api('api=pushtoken&email=' + encodeURIComponent(SUCS[s]) + '&suc=' + encodeURIComponent(s) + '&token=' + encodeURIComponent(token) + '&disp=' + encodeURIComponent(disp)).then(function(r){
+        var ok = !!(r && r.ok); try { localStorage.setItem('tiva_push', ok ? '1' : '0'); } catch(e){}
+        if (cb) cb(ok);
+      });
+    }).catch(function(){ if (cb) cb(false); });
+    try { msg.onMessage(function(){ ding(); mostrarAviso('📩 Te llegó un mensaje nuevo en el chat'); }); } catch(e){}
+  } catch(e){ if (cb) cb(false); }
+}
+function probarAviso(){
+  desbloquear(); ding();
+  if (pushOn()) {
+    mostrarAviso('🔔 Suena así. En unos segundos también te llega el aviso del celular…');
+    var s = guardada();
+    api('api=pushprobar&email=' + encodeURIComponent(SUCS[s]) + '&suc=' + encodeURIComponent(s)).then(function(r){
+      if (!(r && r.ok)) mostrarAviso('⚠️ No se pudo mandar el aviso de prueba' + (r && r.error ? ': ' + r.error : ''));
+    }).catch(function(){});
+  } else mostrarAviso('🔔 Así va a sonar cuando te escriban');
 }
 function instalar(){
   if (INSTALL_EV) { INSTALL_EV.prompt(); INSTALL_EV.userChoice.then(function(){ INSTALL_EV = null; pintarPanel(); }); return; }
@@ -165,7 +205,11 @@ function ding(){
 function mostrarAviso(t){ var a = document.getElementById('aviso'); if (!a) return; a.textContent = t; a.style.display = 'block'; clearTimeout(a._t); a._t = setTimeout(function(){ a.style.display = 'none'; }, 6000); }
 function activarAvisos(){
   desbloquear();
-  var fin = function(){ try { localStorage.setItem('tiva_notif', '1'); } catch(e){} ding(); mostrarAviso('🔔 Avisos activados. Así va a sonar cuando te escriban.'); pintarPanel(); avisosArrancar(); };
+  var fin = function(){
+    try { localStorage.setItem('tiva_notif', '1'); } catch(e){} ding(); pintarPanel(); avisosArrancar();
+    mostrarAviso('🔔 Avisos activados. Registrando el celular…');
+    pushRegistrar(function(ok){ pintarPanel(); mostrarAviso(ok ? '✅ Listo: va a sonar aunque la app esté cerrada.' : '🔔 Activado. Suena mientras la app esté abierta.'); });
+  };
   if ('Notification' in window && Notification.permission !== 'granted') {
     Notification.requestPermission().then(function(p){ if (p !== 'granted') mostrarAviso('Sin permiso del celular igual va a sonar mientras la app esté abierta.'); fin(); }).catch(fin);
   } else fin();
