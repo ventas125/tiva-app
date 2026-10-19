@@ -86,16 +86,13 @@ function chat(s, canal){ return CHAT + encodeURIComponent(SUCS[s]) + (canal ? '&
 var ENV = ['19837385-4f51-4fbf-9fda-9a7c8eb14eba', 'TIVAREMITO--3-57683989'];
 var TRF = ['65e98873-94f5-4f1d-ad00-b6a5b04a803f', 'TIVA—CHECKLISTDIARIO-57683989'];
 var FUN = ['2740cbb9-73cc-4984-bc01-2b15ba4cb81a', 'TIVAFUNDASV2-57683989'];
-/* 19/10 (Daniel): en estas sucursales, los botones de ENVÍOS se abren en versión web ADENTRO de la App TIVA (no en la app de AppSheet del celular),
-   así la app de AppSheet queda fija en Transferencias y no se cierra cada vez que entran a Envíos. Empezamos con Rivadavia 2525. */
-var WEB_ENV = ['RIVADAVIA 2525 CENTRAL'];
 var BOTONES = [
   { t: 'Abrir mi turno', e: '⏰', s: 'Cerrar mi turno, poner tu nombre y abrir DUX Software', c: '#1b7f5f', u: function(s){ return chat(s, 'CAJA'); } },
   { t: 'Tomar foto a las transferencias', e: '📷', s: 'Acá está la app para detectar que los pagos llegan al banco', c: '#7b2cbf', u: function(){ return as(TRF[0], TRF[1], 'NUEVO COMPROBANTE'); } },
   /* 19/10 (Daniel): botón SOLO para Rivadavia 2525 Central (está pegado al depósito): registro de lo que sale del depósito hacia los locales. Resaltado. */
-  { t: 'Registro de salida del depósito hacia las sucursales', e: '🚚', s: 'Anotá acá cada salida de mercadería del depósito hacia un local, con foto, para que quede supervisada', c: '#d35400', solo: ['RIVADAVIA 2525 CENTRAL'], destacado: true, web: WEB_ENV, u: function(){ return as(ENV[0], ENV[1], 'REGISTRO DE SALIDA DEL DEPOSITO ASIA LAS SUCURSALES'); } },
+  { t: 'Registro de salida del depósito hacia las sucursales', e: '🚚', s: 'Anotá acá cada salida de mercadería del depósito hacia un local, con foto, para que quede supervisada', c: '#d35400', solo: ['RIVADAVIA 2525 CENTRAL'], destacado: true, u: function(){ return as(ENV[0], ENV[1], 'REGISTRO DE SALIDA DEL DEPOSITO ASIA LAS SUCURSALES'); } },
   { t: 'Reporte del local diario', e: '📝', s: 'Informar lo que pide la app, para que el local esté ordenado y limpio', c: '#2d3436', u: function(s){ return chat(s, 'IMPECABLE'); } },
-  { t: 'Envíos y pedidos al depósito', e: '📦', s: 'Pedir y confirmar mercadería que te llegó, así evitamos que se pierda la mercadería en el camino', c: '#5a189a', web: WEB_ENV, u: function(){ return as(ENV[0], ENV[1], 'RECIBIR CON CELULAR'); } },
+  { t: 'Envíos y pedidos al depósito', e: '📦', s: 'Pedir y confirmar mercadería que te llegó, así evitamos que se pierda la mercadería en el camino', c: '#5a189a', u: function(){ return as(ENV[0], ENV[1], 'RECIBIR CON CELULAR'); } },
   { t: 'Fundas personalizadas', e: '🎨', s: 'Informemos al depósito que recibimos funda personalizada para hacer. Ofrezcamos personalizar cuando no encuentre su diseño el cliente', c: '#9d4edd', u: function(){ return as(FUN[0], FUN[1], 'PEDIDOS'); } },
   { t: 'Stock de la sucursal', e: '📊', s: 'Consultalo a la IA para que te diga cuántas unidades te quedan en stock de cualquier producto del local, y ahí mismo seleccioná para hacer tu pedido', c: '#2a9d8f', u: function(s){ return chat(s, 'BOT'); } },
   { t: 'Tablero del chat', e: '💬', s: 'Acá encontrarás todos los chats que necesitás para trabajar mejor', c: '#0f6e5f', u: function(s){ return chat(s, ''); } },
@@ -122,7 +119,7 @@ function pintar(){
   g += '<div class="panel" id="panel"></div><div class="lista">';
   BOTONES.forEach(function(b, i){
     if (b.solo && b.solo.indexOf(s) < 0) return;   // botones que son solo para algunas sucursales
-    var u = b.u(s), esChat = u.indexOf(CHAT) === 0 || (b.web && b.web.indexOf(s) >= 0);   // web: se abre adentro de la App TIVA
+    var u = b.u(s), esChat = u.indexOf(CHAT) === 0;
     g += '<a class="card' + (b.destacado ? ' dest' : '') + '" href="' + esc(u) + '"' + (esChat ? ' data-chat="' + i + '"' : ' target="_blank" rel="noopener"') + '><div class="ic" style="background:' + b.c + '">' + b.e + '</div><div class="tx"><b>' + esc(b.t) + '</b><small>' + esc(b.s) + '</small></div><div class="ch">›</div></a>';
   });
   g += '</div><div class="tip">App TIVA · ' + esc(s) + '</div><div class="aviso" id="aviso"></div>';
@@ -138,11 +135,10 @@ var CHAT_ABIERTO = false;
 function abrirChat(url, titulo){
   cerrarChat();
   var v = document.createElement('div'); v.className = 'vchat'; v.id = 'vchat';
-  v.innerHTML = '<div class="vb"><button type="button" id="vVolver">◀ Volver</button><b>' + esc(titulo || 'Chat') + '</b><button type="button" id="vRecargar" title="Actualizar">🔄</button><button type="button" id="vAfuera" title="Abrir en el navegador">↗</button></div><iframe id="vIfr" src="' + esc(url) + '" allow="camera; microphone; autoplay; geolocation"></iframe>';
+  v.innerHTML = '<div class="vb"><button type="button" id="vVolver">◀ Volver</button><b>' + esc(titulo || 'Chat') + '</b><button type="button" id="vRecargar" title="Actualizar">🔄</button></div><iframe id="vIfr" src="' + esc(url) + '" allow="camera; microphone; autoplay; geolocation"></iframe>';
   document.body.appendChild(v); CHAT_ABIERTO = true;
   document.getElementById('vVolver').onclick = function(){ cerrarChat(); };
   document.getElementById('vRecargar').onclick = function(){ var f = document.getElementById('vIfr'); if (f) f.src = f.src; };
-  document.getElementById('vAfuera').onclick = function(){ window.open(url, '_blank'); };   // por si no carga adentro (ej. tiene que iniciar sesión)
   try { history.pushState({ chat: 1 }, '', location.search + '#chat'); } catch(e){}
 }
 function cerrarChat(){ var v = document.getElementById('vchat'); if (v) v.remove(); CHAT_ABIERTO = false; if (location.hash === '#chat') { try { history.replaceState(null, '', location.search); } catch(e){} } }
