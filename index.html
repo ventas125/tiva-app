@@ -11,32 +11,32 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="TIVA">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0b2a6b">
+<meta name="theme-color" content="#0a7c6c">
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;min-height:100%;background:#eef2f8;color:#14213d;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-  header{background:linear-gradient(180deg,#1747a6,#0b2a6b);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 16px 22px;text-align:center;border-radius:0 0 26px 26px;box-shadow:0 6px 18px rgba(11,42,107,.25)}
-  header .logo{display:inline-block;background:#fff;border-radius:14px;padding:6px 14px}
-  header .logo img{height:40px;display:block}
-  header h1{margin:12px 0 2px;font-size:22px;letter-spacing:.5px}
-  header p{margin:0;font-size:14px;opacity:.85}
-  header button{margin-top:10px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:5px 12px;font-size:12px}
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 10px;padding:22px 14px 30px;max-width:560px;margin:0 auto}
-  @media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
-  a.app{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:#14213d}
-  a.app .ic{width:74px;height:74px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:38px;box-shadow:0 4px 10px rgba(0,0,0,.18)}
-  a.app:active .ic{transform:scale(.92)}
-  a.app span{margin-top:7px;font-size:13px;font-weight:700;text-align:center;line-height:1.15}
+  html,body{margin:0;min-height:100%;background:#eef2f0;color:#14213d;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:linear-gradient(180deg,#128a78,#0a6b5d);color:#fff;padding:calc(16px + env(safe-area-inset-top)) 16px 18px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+  header .logo{display:inline-block;background:#fff;border-radius:12px;padding:5px 12px}
+  header .logo img{height:36px;display:block}
+  header h1{margin:10px 0 2px;font-size:24px;letter-spacing:.5px}
+  header p{margin:0;font-size:14px;opacity:.9}
+  header button{margin-top:8px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:4px 12px;font-size:12px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;max-width:620px;margin:0 auto}
+  @media(min-width:820px){.grid{grid-template-columns:repeat(3,1fr);max-width:900px}}
+  a.b{display:flex;flex-direction:column;justify-content:flex-start;min-height:128px;border-radius:16px;color:#fff;text-decoration:none;padding:14px 13px;box-shadow:0 4px 10px rgba(0,0,0,.18)}
+  a.b:active{transform:scale(.97)}
+  a.b b{font-size:19px;line-height:1.15;font-style:italic;letter-spacing:.3px}
+  a.b small{font-size:12.5px;line-height:1.25;margin-top:7px;opacity:.95;font-weight:600}
   .sucs{max-width:520px;margin:0 auto;padding:18px 14px}
-  .sucs button{display:block;width:100%;text-align:left;background:#fff;border:0;border-radius:14px;padding:16px;margin:0 0 10px;font-size:17px;font-weight:800;color:#0b2a6b;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-  .tip{max-width:520px;margin:0 auto;padding:0 18px 28px;font-size:12px;color:#667;text-align:center}
+  .sucs button{display:block;width:100%;text-align:left;background:#fff;border:0;border-radius:14px;padding:16px;margin:0 0 10px;font-size:17px;font-weight:800;color:#0a6b5d;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+  .tip{max-width:620px;margin:0 auto;padding:4px 18px 28px;font-size:12px;color:#667;text-align:center}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-/* TIVA Sucursales — accesos a las herramientas de cada local (18/10/2026, pedido de Daniel).
-   Para sumar un botón: agregarlo en APPS. Para sumar una sucursal: en SUCS. */
+/* TIVA Sucursales — todos los links de cada local en un solo lugar (18/10/2026, pedido de Daniel).
+   Los textos de cada botón son los que escribió Daniel. Para sumar un botón: agregarlo en BOTONES. Para sumar una sucursal: en SUCS. */
 var CHAT = 'https://script.google.com/macros/s/AKfycbxrj6Yc4gvX3lBWh7uT0jy4tqE8wGdCNw_tTn82oVaMA-PmnKTnWh1WQbMTaAp0FjqZ/exec?email=';
 var SUCS = {
   'RECOVA': 'tiva.recova@gmail.com',
@@ -49,24 +49,26 @@ var SUCS = {
   'RIVADAVIA 2525 CENTRAL': 'tivariva25@gmail.com'
 };
 function as(id, n, v){ return 'https://www.appsheet.com/start/' + id + '#appName=' + encodeURIComponent(n) + '&view=' + encodeURIComponent(v); }
+function chat(s, canal){ return CHAT + encodeURIComponent(SUCS[s]) + (canal ? '#canal=' + canal : ''); }
 var ENV = ['19837385-4f51-4fbf-9fda-9a7c8eb14eba', 'TIVAREMITO--3-57683989'];
 var TRF = ['65e98873-94f5-4f1d-ad00-b6a5b04a803f', 'TIVA—CHECKLISTDIARIO-57683989'];
 var FUN = ['2740cbb9-73cc-4984-bc01-2b15ba4cb81a', 'TIVAFUNDASV2-57683989'];
-var APPS = [
-  { t: 'Recibir mercadería', e: '📦', c: '#2e7d32', u: function(){ return as(ENV[0], ENV[1], 'RECIBIR CON CELULAR'); } },
-  { t: 'Pedir al depósito',  e: '🛒', c: '#ef6c00', u: function(){ return as(ENV[0], ENV[1], 'PEDIR CELULAR'); } },
-  { t: 'Fundas',             e: '🎨', c: '#8e24aa', u: function(){ return as(FUN[0], FUN[1], 'PEDIDOS'); } },
-  { t: 'DUX',                e: '🔵', c: '#0b5cd5', u: function(){ return 'https://erp.duxsoftware.com.ar'; } },
-  { t: 'Chat TIVA',          e: '💬', c: '#0a7c6c', u: function(s){ return CHAT + encodeURIComponent(SUCS[s]); } },
-  { t: 'Nueva transferencia',e: '📷', c: '#1565c0', u: function(){ return as(TRF[0], TRF[1], 'NUEVO COMPROBANTE'); } },
-  { t: 'Mi turno',           e: '⏰', c: '#00838f', u: function(){ return as(TRF[0], TRF[1], 'MI TURNO'); } },
-  { t: 'Mis comprobantes',   e: '🧾', c: '#5c6bc0', u: function(){ return as(TRF[0], TRF[1], 'HISTORIAL COMPROBANTES'); } }
+var BOTONES = [
+  { t: 'Abrir mi turno', s: 'Cerrar mi turno, poner tu nombre y abrir DUX Software', c: '#2e7d32', u: function(s){ return chat(s, 'CAJA'); } },
+  { t: 'Tomar foto a las transferencias', s: 'Acá está la app para detectar que los pagos llegan al banco', c: '#8e24aa', u: function(){ return as(TRF[0], TRF[1], 'NUEVO COMPROBANTE'); } },
+  { t: 'Reporte del local diario', s: 'Informar lo que pide la app, para que el local esté ordenado y limpio', c: '#1b1b1b', u: function(s){ return chat(s, 'IMPECABLE'); } },
+  { t: 'Envíos y pedidos al depósito', s: 'Pedir y confirmar mercadería que te llegó, así evitamos que se pierda la mercadería en el camino', c: '#6a1b9a', u: function(){ return as(ENV[0], ENV[1], 'RECIBIR CON CELULAR'); } },
+  { t: 'Fundas personalizadas', s: 'Informemos al depósito que recibimos funda personalizada para hacer. Ofrezcamos personalizar cuando no encuentre su diseño el cliente', c: '#8e24aa', u: function(){ return as(FUN[0], FUN[1], 'PEDIDOS'); } },
+  { t: 'Stock de la sucursal', s: 'Consultalo a la IA para que te diga cuántas unidades te quedan en stock de cualquier producto del local, y ahí mismo seleccioná para hacer tu pedido', c: '#2e7d32', u: function(s){ return chat(s, 'BOT'); } },
+  { t: 'Tablero del chat', s: 'Acá encontrarás todos los chats que necesitás para trabajar mejor', c: '#2e7d32', u: function(s){ return chat(s, ''); } },
+  { t: 'Compatibles Glass 9D', s: 'Consultalo a la IA porque cualquier modelo compatible Glass 9D o protector de cámara u otro', c: '#1565c0', u: function(s){ return chat(s, 'COMP9D'); } },
+  { t: 'Abrir DUX Software', s: 'Para facturar y mirar el stock del local', c: '#0b5cd5', u: function(){ return 'https://erp.duxsoftware.com.ar'; } }
 ];
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 function guardada(){ try { return localStorage.getItem('tiva_suc') || ''; } catch(e){ return ''; } }
 function guardar(s){ try { if (s) localStorage.setItem('tiva_suc', s); else localStorage.removeItem('tiva_suc'); } catch(e){} }
 var LOGO = '<div class="logo"><img id="lg" src="https://tiva.com.ar/cdn/shop/files/LOGUITO_1b2a8d14-a883-4cc9-a7e7-9f3348145478.png" alt="TIVA"></div>';
-function logoFix(){ var i = document.getElementById('lg'); if (!i) return; var f = function(){ i.parentNode.innerHTML = '<b style="color:#0b2a6b;font-size:26px;letter-spacing:2px">TIVA</b>'; }; i.onerror = f; if (i.complete && !i.naturalWidth) f(); }
+function logoFix(){ var i = document.getElementById('lg'); if (!i) return; var f = function(){ i.parentNode.innerHTML = '<b style="color:#0a6b5d;font-size:26px;letter-spacing:2px">TIVA</b>'; }; i.onerror = f; if (i.complete && !i.naturalWidth) f(); }
 function pintar(){
   var q = new URLSearchParams(location.search).get('suc');
   var s = (q || guardada()).toUpperCase();
@@ -79,8 +81,8 @@ function pintar(){
     return;
   }
   guardar(s);
-  var g = '<header>' + LOGO + '<h1>' + esc(s) + '</h1><p>Tocá lo que necesitás</p><button type="button" id="cambiar">Cambiar sucursal</button></header><div class="grid">';
-  APPS.forEach(function(a){ g += '<a class="app" href="' + esc(a.u(s)) + '" target="_blank" rel="noopener"><div class="ic" style="background:' + a.c + '">' + a.e + '</div><span>' + esc(a.t) + '</span></a>'; });
+  var g = '<header>' + LOGO + '<h1>TIVA · ' + esc(s) + '</h1><p>Tocá lo que necesitás</p><button type="button" id="cambiar">Cambiar sucursal</button></header><div class="grid">';
+  BOTONES.forEach(function(b){ g += '<a class="b" href="' + esc(b.u(s)) + '" target="_blank" rel="noopener" style="background:' + b.c + '"><b>' + esc(b.t) + '</b><small>' + esc(b.s) + '</small></a>'; });
   g += '</div><div class="tip">Para instalarla: iPhone → Safari → Compartir → "Agregar a inicio". Android → Chrome → ⋮ → "Instalar app" o "Agregar a pantalla principal".</div>';
   el.innerHTML = g; logoFix();
   document.getElementById('cambiar').onclick = function(){ if (confirm('¿Cambiar de sucursal?')) { guardar(''); history.replaceState(null, '', location.pathname); pintar(); } };
