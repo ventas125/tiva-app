@@ -31,6 +31,10 @@
   a.card b{display:block;font-size:17px;font-weight:800;line-height:1.2;color:#15302a}
   a.card small{display:block;margin-top:4px;font-size:13px;line-height:1.3;color:#5b6b67}
   a.card .ch{flex:0 0 auto;color:#b7c3bf;font-size:22px;font-weight:300}
+  a.card.dest{background:linear-gradient(135deg,#fff3e6,#ffe3c2);border:2px solid #e67e22;box-shadow:0 6px 18px rgba(211,84,0,.25)}
+  @media(min-width:820px){a.card.dest{grid-column:1 / -1}}
+  a.card.dest b{color:#8a3b00}
+  a.card.dest .ch{color:#e67e22}
   .sucs{max-width:520px;margin:0 auto;padding:18px 14px}
   .sucs button{display:block;width:100%;text-align:left;background:#fff;border:1px solid #e6ebe9;border-radius:16px;padding:16px;margin:0 0 10px;font-size:17px;font-weight:800;color:#0f6e5f;box-shadow:0 2px 8px rgba(0,0,0,.06)}
   .tip{max-width:640px;margin:0 auto;padding:6px 18px 30px;font-size:12px;color:#8a9793;text-align:center}
@@ -83,6 +87,8 @@ var ENV = ['19837385-4f51-4fbf-9fda-9a7c8eb14eba', 'TIVAREMITO--3-57683989'];
 var TRF = ['65e98873-94f5-4f1d-ad00-b6a5b04a803f', 'TIVA—CHECKLISTDIARIO-57683989'];
 var FUN = ['2740cbb9-73cc-4984-bc01-2b15ba4cb81a', 'TIVAFUNDASV2-57683989'];
 var BOTONES = [
+  /* 19/10 (Daniel): botón SOLO para Rivadavia 2525 Central (está pegado al depósito): registro de lo que sale del depósito hacia los locales. Resaltado. */
+  { t: 'Registro de salida del depósito hacia las sucursales', e: '🚚', s: 'Anotá acá cada salida de mercadería del depósito hacia un local, con foto, para que quede supervisada', c: '#d35400', solo: ['RIVADAVIA 2525 CENTRAL'], destacado: true, u: function(){ return as(ENV[0], ENV[1], 'REGISTRO DE SALIDA DEL DEPOSITO ASIA LAS SUCURSALES'); } },
   { t: 'Abrir mi turno', e: '⏰', s: 'Cerrar mi turno, poner tu nombre y abrir DUX Software', c: '#1b7f5f', u: function(s){ return chat(s, 'CAJA'); } },
   { t: 'Tomar foto a las transferencias', e: '📷', s: 'Acá está la app para detectar que los pagos llegan al banco', c: '#7b2cbf', u: function(){ return as(TRF[0], TRF[1], 'NUEVO COMPROBANTE'); } },
   { t: 'Reporte del local diario', e: '📝', s: 'Informar lo que pide la app, para que el local esté ordenado y limpio', c: '#2d3436', u: function(s){ return chat(s, 'IMPECABLE'); } },
@@ -112,8 +118,9 @@ function pintar(){
   var g = '<header><div class="hrow">' + LOGO + '<div><h1>' + esc(s) + '</h1><p>Tocá lo que necesitás</p></div><button type="button" id="cambiar">Cambiar sucursal</button></div></header>';
   g += '<div class="panel" id="panel"></div><div class="lista">';
   BOTONES.forEach(function(b, i){
+    if (b.solo && b.solo.indexOf(s) < 0) return;   // botones que son solo para algunas sucursales
     var u = b.u(s), esChat = u.indexOf(CHAT) === 0;
-    g += '<a class="card" href="' + esc(u) + '"' + (esChat ? ' data-chat="' + i + '"' : ' target="_blank" rel="noopener"') + '><div class="ic" style="background:' + b.c + '">' + b.e + '</div><div class="tx"><b>' + esc(b.t) + '</b><small>' + esc(b.s) + '</small></div><div class="ch">›</div></a>';
+    g += '<a class="card' + (b.destacado ? ' dest' : '') + '" href="' + esc(u) + '"' + (esChat ? ' data-chat="' + i + '"' : ' target="_blank" rel="noopener"') + '><div class="ic" style="background:' + b.c + '">' + b.e + '</div><div class="tx"><b>' + esc(b.t) + '</b><small>' + esc(b.s) + '</small></div><div class="ch">›</div></a>';
   });
   g += '</div><div class="tip">App TIVA · ' + esc(s) + '</div><div class="aviso" id="aviso"></div>';
   el.innerHTML = g; logoFix(); pintarPanel();
