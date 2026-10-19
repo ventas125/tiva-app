@@ -50,6 +50,12 @@
   .modal h2{margin:0 0 10px;font-size:18px}
   .modal ol{margin:0;padding-left:20px;font-size:15px;line-height:1.6}
   .modal button{margin-top:16px;width:100%;background:#0f6e5f;color:#fff;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:800}
+  /* 18/10 (Daniel): el chat se abre ADENTRO de la app (pantalla completa, sin cartel de Google) */
+  .vchat{position:fixed;inset:0;background:#0a4d43;z-index:8;display:flex;flex-direction:column}
+  .vchat .vb{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:calc(6px + env(safe-area-inset-top)) 10px 6px;background:linear-gradient(160deg,#0f6e5f,#0a4d43);color:#fff}
+  .vchat .vb button{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:7px 12px;font-size:14px;font-weight:800}
+  .vchat .vb b{font-size:14px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vchat iframe{flex:1;width:100%;border:0;background:#f3f5f4;padding-bottom:env(safe-area-inset-bottom)}
   .aviso{position:fixed;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top));background:#15302a;color:#fff;border-radius:16px;padding:14px 16px;font-size:16px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:10;display:none;text-align:center}
 </style>
 </head>
@@ -105,14 +111,31 @@ function pintar(){
   guardar(s);
   var g = '<header><div class="hrow">' + LOGO + '<div><h1>' + esc(s) + '</h1><p>Tocá lo que necesitás</p></div><button type="button" id="cambiar">Cambiar sucursal</button></div></header>';
   g += '<div class="panel" id="panel"></div><div class="lista">';
-  BOTONES.forEach(function(b){ g += '<a class="card" href="' + esc(b.u(s)) + '" target="_blank" rel="noopener"><div class="ic" style="background:' + b.c + '">' + b.e + '</div><div class="tx"><b>' + esc(b.t) + '</b><small>' + esc(b.s) + '</small></div><div class="ch">›</div></a>'; });
+  BOTONES.forEach(function(b, i){
+    var u = b.u(s), esChat = u.indexOf(CHAT) === 0;
+    g += '<a class="card" href="' + esc(u) + '"' + (esChat ? ' data-chat="' + i + '"' : ' target="_blank" rel="noopener"') + '><div class="ic" style="background:' + b.c + '">' + b.e + '</div><div class="tx"><b>' + esc(b.t) + '</b><small>' + esc(b.s) + '</small></div><div class="ch">›</div></a>';
+  });
   g += '</div><div class="tip">App TIVA · ' + esc(s) + '</div><div class="aviso" id="aviso"></div>';
   el.innerHTML = g; logoFix(); pintarPanel();
   document.getElementById('cambiar').onclick = function(){ if (confirm('¿Cambiar de sucursal?')) { guardar(''); history.replaceState(null, '', location.pathname); pintar(); } };
+  el.querySelectorAll('[data-chat]').forEach(function(a){ a.onclick = function(ev){ ev.preventDefault(); var b = BOTONES[Number(a.getAttribute('data-chat'))]; abrirChat(b.u(s), b.t); }; });
   avisosArrancar();
   if (pushOn() && Notification.permission === 'granted') setTimeout(function(){ pushRegistrar(function(){ pintarPanel(); }); }, 1500);   // refresca el registro del celular
-  if (new URLSearchParams(location.search).get('abrir') === 'chat') { history.replaceState(null, '', '?suc=' + encodeURIComponent(s)); location.href = chat(s, ''); }   // tocaron el aviso: directo al chat
+  if (new URLSearchParams(location.search).get('abrir') === 'chat') { history.replaceState(null, '', '?suc=' + encodeURIComponent(s)); abrirChat(chat(s, ''), 'Tablero del chat'); }   // tocaron el aviso: directo al chat
 }
+/* 18/10 (Daniel): el chat se abre adentro de la App TIVA. Mientras está abierto, la alarma la maneja el propio chat (no se duplica). */
+var CHAT_ABIERTO = false;
+function abrirChat(url, titulo){
+  cerrarChat();
+  var v = document.createElement('div'); v.className = 'vchat'; v.id = 'vchat';
+  v.innerHTML = '<div class="vb"><button type="button" id="vVolver">◀ Volver</button><b>' + esc(titulo || 'Chat') + '</b><button type="button" id="vRecargar" title="Actualizar">🔄</button></div><iframe id="vIfr" src="' + esc(url) + '" allow="camera; microphone; autoplay; geolocation"></iframe>';
+  document.body.appendChild(v); CHAT_ABIERTO = true;
+  document.getElementById('vVolver').onclick = function(){ cerrarChat(); };
+  document.getElementById('vRecargar').onclick = function(){ var f = document.getElementById('vIfr'); if (f) f.src = f.src; };
+  try { history.pushState({ chat: 1 }, '', location.search + '#chat'); } catch(e){}
+}
+function cerrarChat(){ var v = document.getElementById('vchat'); if (v) v.remove(); CHAT_ABIERTO = false; if (location.hash === '#chat') { try { history.replaceState(null, '', location.search); } catch(e){} } }
+window.addEventListener('popstate', function(){ if (CHAT_ABIERTO) cerrarChat(); });   // el botón "atrás" del celular cierra el chat
 
 /* ===== 18/10 (Daniel): INSTALAR LA APP + AVISOS CON SONIDO =====
    - Instalar: en Android sale el cartel de Chrome; en iPhone se muestran los pasos (Apple no deja instalar con un botón).
@@ -163,7 +186,7 @@ function pushRegistrar(cb){
         if (cb) cb(ok);
       });
     }).catch(function(){ if (cb) cb(false); });
-    try { msg.onMessage(function(){ ding(); mostrarAviso('📩 Te llegó un mensaje nuevo en el chat'); }); } catch(e){}
+    try { msg.onMessage(function(){ if (CHAT_ABIERTO) return; ding(); mostrarAviso('📩 Te llegó un mensaje nuevo en el chat'); }); } catch(e){}
   } catch(e){ if (cb) cb(false); }
 }
 function probarAviso(){
@@ -226,7 +249,7 @@ function avisosArrancar(){
   var tick = function(){
     fetch(url + '&_=' + Date.now(), { cache: 'no-store' }).then(function(r){ return r.text(); }).then(function(v){
       var p = String(v || '0|0|0').split('|'), a = p[1] || '0', pend = p[2] === '1';
-      if (SELLO_AV === null) { SELLO_AV = a; SELLO_PEND = pend; return; }
+      if (SELLO_AV === null || CHAT_ABIERTO) { SELLO_AV = a; SELLO_PEND = pend; return; }   // con el chat abierto adentro, suena el chat (no la app)
       if (a !== SELLO_AV) { SELLO_AV = a; ULT_SON = Date.now(); ding(); mostrarAviso('📩 Te llegó un mensaje nuevo en el chat'); notificar(); }
       else if (pend && Date.now() - ULT_SON > 30000) { ULT_SON = Date.now(); ding(); mostrarAviso('📩 Tenés un mensaje sin leer en el chat'); }
       SELLO_PEND = pend;
