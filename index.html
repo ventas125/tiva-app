@@ -14,22 +14,26 @@
 <meta name="theme-color" content="#0a7c6c">
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;min-height:100%;background:#eef2f0;color:#14213d;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-  header{background:linear-gradient(180deg,#128a78,#0a6b5d);color:#fff;padding:calc(16px + env(safe-area-inset-top)) 16px 18px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.18)}
-  header .logo{display:inline-block;background:#fff;border-radius:12px;padding:5px 12px}
-  header .logo img{height:36px;display:block}
-  header h1{margin:10px 0 2px;font-size:24px;letter-spacing:.5px}
-  header p{margin:0;font-size:14px;opacity:.9}
-  header button{margin-top:8px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:4px 12px;font-size:12px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;max-width:620px;margin:0 auto}
-  @media(min-width:820px){.grid{grid-template-columns:repeat(3,1fr);max-width:900px}}
-  a.b{display:flex;flex-direction:column;justify-content:flex-start;min-height:128px;border-radius:16px;color:#fff;text-decoration:none;padding:14px 13px;box-shadow:0 4px 10px rgba(0,0,0,.18)}
-  a.b:active{transform:scale(.97)}
-  a.b b{font-size:19px;line-height:1.15;font-style:italic;letter-spacing:.3px}
-  a.b small{font-size:12.5px;line-height:1.25;margin-top:7px;opacity:.95;font-weight:600}
+  html,body{margin:0;min-height:100%;background:#f3f5f4;color:#1c2b27;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:linear-gradient(160deg,#0f6e5f,#0a4d43);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 18px 26px;border-radius:0 0 28px 28px;box-shadow:0 8px 24px rgba(10,77,67,.25)}
+  .hrow{display:flex;align-items:center;gap:12px;max-width:640px;margin:0 auto}
+  header .logo{background:#fff;border-radius:12px;padding:6px 10px;flex:0 0 auto}
+  header .logo img{height:30px;display:block}
+  header h1{margin:0;font-size:20px;font-weight:800;letter-spacing:.3px;line-height:1.1}
+  header p{margin:3px 0 0;font-size:13px;opacity:.85}
+  header button{margin-left:auto;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:6px 11px;font-size:12px;white-space:nowrap}
+  .lista{max-width:640px;margin:0 auto;padding:16px 14px 10px;display:grid;gap:12px}
+  @media(min-width:820px){.lista{max-width:960px;grid-template-columns:1fr 1fr}}
+  a.card{display:flex;align-items:center;gap:14px;background:#fff;border-radius:18px;padding:14px 14px 14px 12px;text-decoration:none;color:inherit;box-shadow:0 2px 10px rgba(16,40,35,.07);border:1px solid #e6ebe9;transition:transform .08s}
+  a.card:active{transform:scale(.985);background:#fafcfb}
+  a.card .ic{flex:0 0 58px;width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)}
+  a.card .tx{flex:1;min-width:0}
+  a.card b{display:block;font-size:17px;font-weight:800;line-height:1.2;color:#15302a}
+  a.card small{display:block;margin-top:4px;font-size:13px;line-height:1.3;color:#5b6b67}
+  a.card .ch{flex:0 0 auto;color:#b7c3bf;font-size:22px;font-weight:300}
   .sucs{max-width:520px;margin:0 auto;padding:18px 14px}
-  .sucs button{display:block;width:100%;text-align:left;background:#fff;border:0;border-radius:14px;padding:16px;margin:0 0 10px;font-size:17px;font-weight:800;color:#0a6b5d;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-  .tip{max-width:620px;margin:0 auto;padding:4px 18px 28px;font-size:12px;color:#667;text-align:center}
+  .sucs button{display:block;width:100%;text-align:left;background:#fff;border:1px solid #e6ebe9;border-radius:16px;padding:16px;margin:0 0 10px;font-size:17px;font-weight:800;color:#0f6e5f;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .tip{max-width:640px;margin:0 auto;padding:6px 18px 30px;font-size:12px;color:#8a9793;text-align:center}
 </style>
 </head>
 <body>
@@ -54,35 +58,35 @@ var ENV = ['19837385-4f51-4fbf-9fda-9a7c8eb14eba', 'TIVAREMITO--3-57683989'];
 var TRF = ['65e98873-94f5-4f1d-ad00-b6a5b04a803f', 'TIVA—CHECKLISTDIARIO-57683989'];
 var FUN = ['2740cbb9-73cc-4984-bc01-2b15ba4cb81a', 'TIVAFUNDASV2-57683989'];
 var BOTONES = [
-  { t: 'Abrir mi turno', s: 'Cerrar mi turno, poner tu nombre y abrir DUX Software', c: '#2e7d32', u: function(s){ return chat(s, 'CAJA'); } },
-  { t: 'Tomar foto a las transferencias', s: 'Acá está la app para detectar que los pagos llegan al banco', c: '#8e24aa', u: function(){ return as(TRF[0], TRF[1], 'NUEVO COMPROBANTE'); } },
-  { t: 'Reporte del local diario', s: 'Informar lo que pide la app, para que el local esté ordenado y limpio', c: '#1b1b1b', u: function(s){ return chat(s, 'IMPECABLE'); } },
-  { t: 'Envíos y pedidos al depósito', s: 'Pedir y confirmar mercadería que te llegó, así evitamos que se pierda la mercadería en el camino', c: '#6a1b9a', u: function(){ return as(ENV[0], ENV[1], 'RECIBIR CON CELULAR'); } },
-  { t: 'Fundas personalizadas', s: 'Informemos al depósito que recibimos funda personalizada para hacer. Ofrezcamos personalizar cuando no encuentre su diseño el cliente', c: '#8e24aa', u: function(){ return as(FUN[0], FUN[1], 'PEDIDOS'); } },
-  { t: 'Stock de la sucursal', s: 'Consultalo a la IA para que te diga cuántas unidades te quedan en stock de cualquier producto del local, y ahí mismo seleccioná para hacer tu pedido', c: '#2e7d32', u: function(s){ return chat(s, 'BOT'); } },
-  { t: 'Tablero del chat', s: 'Acá encontrarás todos los chats que necesitás para trabajar mejor', c: '#2e7d32', u: function(s){ return chat(s, ''); } },
-  { t: 'Compatibles Glass 9D', s: 'Consultalo a la IA porque cualquier modelo compatible Glass 9D o protector de cámara u otro', c: '#1565c0', u: function(s){ return chat(s, 'COMP9D'); } },
-  { t: 'Abrir DUX Software', s: 'Para facturar y mirar el stock del local', c: '#0b5cd5', u: function(){ return 'https://erp.duxsoftware.com.ar'; } }
+  { t: 'Abrir mi turno', e: '⏰', s: 'Cerrar mi turno, poner tu nombre y abrir DUX Software', c: '#1b7f5f', u: function(s){ return chat(s, 'CAJA'); } },
+  { t: 'Tomar foto a las transferencias', e: '📷', s: 'Acá está la app para detectar que los pagos llegan al banco', c: '#7b2cbf', u: function(){ return as(TRF[0], TRF[1], 'NUEVO COMPROBANTE'); } },
+  { t: 'Reporte del local diario', e: '📝', s: 'Informar lo que pide la app, para que el local esté ordenado y limpio', c: '#2d3436', u: function(s){ return chat(s, 'IMPECABLE'); } },
+  { t: 'Envíos y pedidos al depósito', e: '📦', s: 'Pedir y confirmar mercadería que te llegó, así evitamos que se pierda la mercadería en el camino', c: '#5a189a', u: function(){ return as(ENV[0], ENV[1], 'RECIBIR CON CELULAR'); } },
+  { t: 'Fundas personalizadas', e: '🎨', s: 'Informemos al depósito que recibimos funda personalizada para hacer. Ofrezcamos personalizar cuando no encuentre su diseño el cliente', c: '#9d4edd', u: function(){ return as(FUN[0], FUN[1], 'PEDIDOS'); } },
+  { t: 'Stock de la sucursal', e: '📊', s: 'Consultalo a la IA para que te diga cuántas unidades te quedan en stock de cualquier producto del local, y ahí mismo seleccioná para hacer tu pedido', c: '#2a9d8f', u: function(s){ return chat(s, 'BOT'); } },
+  { t: 'Tablero del chat', e: '💬', s: 'Acá encontrarás todos los chats que necesitás para trabajar mejor', c: '#0f6e5f', u: function(s){ return chat(s, ''); } },
+  { t: 'Compatibles Glass 9D', e: '🔎', s: 'Consultalo a la IA porque cualquier modelo compatible Glass 9D o protector de cámara u otro', c: '#1d6fd6', u: function(s){ return chat(s, 'COMP9D'); } },
+  { t: 'Abrir DUX Software', e: '🧾', s: 'Para facturar y mirar el stock del local', c: '#0b5cd5', u: function(){ return 'https://erp.duxsoftware.com.ar'; } }
 ];
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 function guardada(){ try { return localStorage.getItem('tiva_suc') || ''; } catch(e){ return ''; } }
 function guardar(s){ try { if (s) localStorage.setItem('tiva_suc', s); else localStorage.removeItem('tiva_suc'); } catch(e){} }
 var LOGO = '<div class="logo"><img id="lg" src="https://tiva.com.ar/cdn/shop/files/LOGUITO_1b2a8d14-a883-4cc9-a7e7-9f3348145478.png" alt="TIVA"></div>';
-function logoFix(){ var i = document.getElementById('lg'); if (!i) return; var f = function(){ i.parentNode.innerHTML = '<b style="color:#0a6b5d;font-size:26px;letter-spacing:2px">TIVA</b>'; }; i.onerror = f; if (i.complete && !i.naturalWidth) f(); }
+function logoFix(){ var i = document.getElementById('lg'); if (!i) return; var f = function(){ i.parentNode.innerHTML = '<b style="color:#0f6e5f;font-size:20px;letter-spacing:2px">TIVA</b>'; }; i.onerror = f; if (i.complete && !i.naturalWidth) f(); }
 function pintar(){
   var q = new URLSearchParams(location.search).get('suc');
   var s = (q || guardada()).toUpperCase();
   var el = document.getElementById('app');
   if (!SUCS[s]) {
-    var h = '<header>' + LOGO + '<h1>Elegí tu sucursal</h1><p>Se elige una sola vez</p></header><div class="sucs">';
+    var h = '<header><div class="hrow">' + LOGO + '<div><h1>Elegí tu sucursal</h1><p>Se elige una sola vez</p></div></div></header><div class="sucs">';
     Object.keys(SUCS).forEach(function(k){ h += '<button type="button" data-s="' + esc(k) + '">🏪 ' + esc(k) + '</button>'; });
     el.innerHTML = h + '</div>'; logoFix();
     el.querySelectorAll('[data-s]').forEach(function(b){ b.onclick = function(){ guardar(b.getAttribute('data-s')); history.replaceState(null, '', '?suc=' + encodeURIComponent(b.getAttribute('data-s'))); pintar(); }; });
     return;
   }
   guardar(s);
-  var g = '<header>' + LOGO + '<h1>TIVA · ' + esc(s) + '</h1><p>Tocá lo que necesitás</p><button type="button" id="cambiar">Cambiar sucursal</button></header><div class="grid">';
-  BOTONES.forEach(function(b){ g += '<a class="b" href="' + esc(b.u(s)) + '" target="_blank" rel="noopener" style="background:' + b.c + '"><b>' + esc(b.t) + '</b><small>' + esc(b.s) + '</small></a>'; });
+  var g = '<header><div class="hrow">' + LOGO + '<div><h1>' + esc(s) + '</h1><p>Tocá lo que necesitás</p></div><button type="button" id="cambiar">Cambiar sucursal</button></div></header><div class="lista">';
+  BOTONES.forEach(function(b){ g += '<a class="card" href="' + esc(b.u(s)) + '" target="_blank" rel="noopener"><div class="ic" style="background:' + b.c + '">' + b.e + '</div><div class="tx"><b>' + esc(b.t) + '</b><small>' + esc(b.s) + '</small></div><div class="ch">›</div></a>'; });
   g += '</div><div class="tip">Para instalarla: iPhone → Safari → Compartir → "Agregar a inicio". Android → Chrome → ⋮ → "Instalar app" o "Agregar a pantalla principal".</div>';
   el.innerHTML = g; logoFix();
   document.getElementById('cambiar').onclick = function(){ if (confirm('¿Cambiar de sucursal?')) { guardar(''); history.replaceState(null, '', location.pathname); pintar(); } };
