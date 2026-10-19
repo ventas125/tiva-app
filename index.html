@@ -166,7 +166,14 @@ function pintarPanel(){
   } else {
     h += '<div class="pc"><div class="pi">🔔</div><div class="pt"><b>Activá los avisos con sonido</b><small>Para que suene cuando te llegue un mensaje del chat.</small></div><button type="button" id="bNotif">Activar</button></div>';
   }
+  /* 19/10 (Daniel): en Rivadavia 2525 la app de AppSheet queda FIJA en Transferencias y Envíos se usa por la web (Chrome).
+     Es un ajuste del celular, una sola vez. El cartel se puede cerrar con "Ya lo hice". */
+  var sucAct = (new URLSearchParams(location.search).get('suc') || guardada()).toUpperCase();
+  if (FIJA_SUCS.indexOf(sucAct) >= 0 && !fijaHecha()) {
+    h += '<div class="pc" style="background:#eef3ff;border-color:#c5d3f5"><div class="pi">📌</div><div class="pt"><b>Dejá Transferencias fija y Envíos en la web</b><small>Un ajuste del celular, una sola vez, para no perder tiempo cambiando de app.</small></div><button type="button" id="bFija">Ver pasos</button></div>';
+  }
   p.innerHTML = h;
+  var bf = document.getElementById('bFija'); if (bf) bf.onclick = fijaPasos;
   var bi = document.getElementById('bInst'); if (bi) bi.onclick = instalar;
   var bn = document.getElementById('bNotif'); if (bn) bn.onclick = activarAvisos;
   var bp = document.getElementById('bProbar'); if (bp) bp.onclick = probarAviso;
@@ -205,6 +212,18 @@ function probarAviso(){
       if (!(r && r.ok)) mostrarAviso('⚠️ No se pudo mandar el aviso de prueba' + (r && r.error ? ': ' + r.error : ''));
     }).catch(function(){});
   } else mostrarAviso('🔔 Así va a sonar cuando te escriban');
+}
+var FIJA_SUCS = ['RIVADAVIA 2525 CENTRAL'];
+function fijaHecha(){ try { return localStorage.getItem('tiva_fija') === '1'; } catch(e){ return false; } }
+function fijaPasos(){
+  var pasos = esIphone()
+    ? '<li>Abrí la app <b>AppSheet</b> del celular y dejala en <b>Transferencias</b>. No la toques más desde acá.</li><li>Los botones de <b>Envíos</b> de esta App TIVA abrilos y, si se abre la app de AppSheet, volvé acá, mantené apretado el botón y elegí <b>"Abrir en Safari"</b>.</li><li>En Safari, iniciá sesión con el Gmail del local una sola vez. Después queda abierto.</li>'
+    : '<li>Andá a <b>Ajustes → Aplicaciones → AppSheet</b>.</li><li>Tocá <b>"Abrir de forma predeterminada"</b> (o "Enlaces compatibles").</li><li>Elegí <b>"No abrir en esta aplicación"</b> (o desactivá "Abrir enlaces compatibles").</li><li>Listo. Desde ahora, los botones de esta App TIVA abren AppSheet en <b>Chrome</b>, y la app de AppSheet queda <b>fija en Transferencias</b>. Para Transferencias, entrá por el ícono de AppSheet; para Envíos, por acá.</li><li>La primera vez en Chrome te pide iniciar sesión con el Gmail del local. Después queda.</li>';
+  var m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = '<div class="bx"><h2>📌 Transferencias fija · Envíos por la web</h2><ol>' + pasos + '</ol><button type="button" id="fjOk">Ya lo hice</button> <button type="button" id="fjDesp" style="background:#eee;color:#333;margin-top:8px">Después</button></div>';
+  m.querySelector('#fjOk').onclick = function(){ m.remove(); try { localStorage.setItem('tiva_fija', '1'); } catch(e){} pintarPanel(); };
+  m.querySelector('#fjDesp').onclick = function(){ m.remove(); };
+  document.body.appendChild(m);
 }
 function instalar(){
   if (INSTALL_EV) { INSTALL_EV.prompt(); INSTALL_EV.userChoice.then(function(){ INSTALL_EV = null; pintarPanel(); }); return; }
